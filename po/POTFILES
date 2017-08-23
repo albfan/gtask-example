@@ -1,0 +1,9 @@
+data/org.gnome.Gtask-Example.desktop.in
+data/org.gnome.Gtask-Example.appdata.xml.in
+data/org.gnome.Gtask-Example.gschema.xml
+src/gtask-example-window.ui
+src/main.c
+src/gtask-example-window.c
+
+
+
