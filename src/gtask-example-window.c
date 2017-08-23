@@ -30,12 +30,46 @@ struct _GtaskExampleWindow
 
 G_DEFINE_TYPE (GtaskExampleWindow, gtask_example_window, GTK_TYPE_APPLICATION_WINDOW)
 
-void display(GtkButton * b, gpointer data)
+static void
+say_hurra (GTask *task,
+               gpointer source_obj,
+               gpointer task_data,
+               GCancellable *cancellable)
 {
+
+
   while(1)
     {
       printf("hurrah!\n");
+      /* Break if GCancellable.cancel() was called */
+      if (g_cancellable_is_cancelled (cancellable))
+      {
+        g_task_return_new_error (task,
+                                 G_IO_ERROR, G_IO_ERROR_CANCELLED,
+                                 "Task cancelled");
+          return;
+      }
     }
+
+  /* The task has finished */
+  g_task_return_boolean (task, TRUE);
+}
+
+void
+say_hurra_finish (GObject *source_object,
+                        GAsyncResult *res,
+                        gpointer user_data)
+{
+  //TODO: What to do here
+}
+
+void display(GtkButton* b, gpointer data)
+{
+  GCancellable* cancellable =  g_cancellable_new();
+  gpointer p = b;
+  GTask *task = g_task_new (p, cancellable, say_hurra_finish, NULL);
+  g_task_run_in_thread (task, say_hurra);
+  g_object_unref (task);
 }
 
 static void
