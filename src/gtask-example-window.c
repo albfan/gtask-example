@@ -30,12 +30,17 @@ struct _GtaskExampleWindow
 
 G_DEFINE_TYPE (GtaskExampleWindow, gtask_example_window, GTK_TYPE_APPLICATION_WINDOW)
 
+gboolean on_idle()
+{
+  printf("hurrah!\n");
+  return G_SOURCE_CONTINUE;
+  //TODO: Detect window close to stop this
+  //return G_SOURCE_REMOVE;
+}
+
 void display(GtkButton * b, gpointer data)
 {
-  while(1)
-    {
-      printf("hurrah!\n");
-    }
+  g_idle_add (on_idle, NULL);
 }
 
 static void
