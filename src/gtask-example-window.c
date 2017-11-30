@@ -26,6 +26,7 @@ struct _GtaskExampleWindow
   GtkHeaderBar *header_bar;
   GtkLabel     *label;
   GtkButton    *button;
+  GtkButton    *cancelButton;
 };
 
 G_DEFINE_TYPE (GtaskExampleWindow, gtask_example_window, GTK_TYPE_APPLICATION_WINDOW)
@@ -63,9 +64,17 @@ say_hurra_finish (GObject *source_object,
   //TODO: What to do here
 }
 
+void cancel_display(GtkButton* b, gpointer data)
+{
+  GCancellable* cancellable =  G_CANCELLABLE(data);
+  g_cancellable_cancel(cancellable);
+}
+
 void display(GtkButton* b, gpointer data)
 {
+  GtaskExampleWindow *self = GTASK_EXAMPLE_WINDOW(data);
   GCancellable* cancellable =  g_cancellable_new();
+  g_signal_connect (self->cancelButton, "clicked", G_CALLBACK (cancel_display), cancellable);
   gpointer p = b;
   GTask *task = g_task_new (p, cancellable, say_hurra_finish, NULL);
   g_task_run_in_thread (task, say_hurra);
@@ -80,13 +89,14 @@ gtask_example_window_class_init (GtaskExampleWindowClass *klass)
   gtk_widget_class_set_template_from_resource (widget_class, "/org/gnome/Gtask-Example/gtask-example-window.ui");
   gtk_widget_class_bind_template_child (widget_class, GtaskExampleWindow, label);
   gtk_widget_class_bind_template_child (widget_class, GtaskExampleWindow, button);
+  gtk_widget_class_bind_template_child (widget_class, GtaskExampleWindow, cancelButton);
 }
 
 static void
 gtask_example_window_init (GtaskExampleWindow *self)
 {
   gtk_widget_init_template (GTK_WIDGET (self));
-  g_signal_connect (self->button, "clicked", G_CALLBACK (display), NULL);
+  g_signal_connect (self->button, "clicked", G_CALLBACK (display), self);
 
 }
 
